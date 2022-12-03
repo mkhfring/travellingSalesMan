@@ -22,11 +22,12 @@ int main(int argc, char const *argv[])
     return 0;
 }
 void getNodes(int **graph, int size){
+    srand(17);
     for(int i=0; i<size; i++){
         for(int j=0; j<size; j++){
             if(i==j)graph[i][j] = 0;
             else{
-                float x = ((float)rand()/(float)(RAND_MAX)) * 10.0;
+                float x = ((float)rand()*10/(float)(RAND_MAX)) * 10.0;
                 if((int)x == 0) x++;
                 graph[i][j] = (int) x;
                 graph[j][i] = (int) x;
@@ -51,7 +52,7 @@ void getNearestNeighborTour(int **graph, int *finalOrder, int size){
     visited[0] = 1;
     int traverseSize = 0;
     int currentNode = 0;
-    while(traverseSize < size){
+    for(int i=0; i<size; i++){
         int best = INT8_MAX;
         int bestIndex;
         for(int j=0; j<size; j++){
