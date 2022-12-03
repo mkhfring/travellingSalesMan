@@ -6,7 +6,6 @@ void getNodes(int **graph, int size);
 void getNearestNeighborTour(int **graph, int *finalOrder, int size);
 int main(int argc, char const *argv[])
 {
-    
     int numberOfNodes = atoi(argv[1]);
     int finalOrder[numberOfNodes];
     printf("The problem size is %d\n", numberOfNodes);
@@ -68,6 +67,7 @@ void getNearestNeighborTour(int **graph, int *finalOrder, int size){
         tour[traverseSize] = bestIndex;
     }
     tour[traverseSize] = 0;
+    printf("\nThe tour is:\n");
     for(int i=0; i< size+1; i++){
         printf("%d,\t", tour[i]);
     }
