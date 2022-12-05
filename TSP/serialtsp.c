@@ -17,19 +17,22 @@ void calculate_shortest_path(int *choices, int *weights, int size, unsigned long
 int main(int argc, char const *argv[])
 {
     printf("Starting the function\n");
-    
-    int size = 14, *cost;
+    clock_t start, end;
+    int size = 12, *cost;
     unsigned long long fact = factorial(size-1);
     printf("Factorial (%d), %llu\n", (size-1), fact);
     int *city_ids = (int *)malloc(size * sizeof(int));
     int *graphWeights = (int *)malloc(size * sizeof(int) * size);
     int *choices = (int *)malloc(size * sizeof(int) * fact);
     int *path = (int *)malloc(size * sizeof(int));
-
+    start = clock();
 	initialize(city_ids, graphWeights, size);
     //find_permutations(city_ids, choices, size, fact);
     permute(city_ids, 1, size-1, choices, size);
     calculate_shortest_path(choices, graphWeights, size, fact, path);
+    end = clock();
+    double time_passed = ((double) (end - start)) / CLOCKS_PER_SEC;
+    printf("The execution time is %f\n", time_passed * 1000);
     printf("The shortest path is: \n");
     for(int i=0; i< size; i++){
         printf("%d, \t", path[i]);
@@ -88,7 +91,6 @@ void permute(int* a, int l, int r, int* final, int size)
         for(i=0; i<size; i++){
             final[i + permute_count * (l+1)] = a[i];
         }
-        printf("\n");
         permute_count++;
     }
 
