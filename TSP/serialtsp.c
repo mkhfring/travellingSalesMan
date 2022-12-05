@@ -11,26 +11,29 @@ void find_permutations(int * city_ids, int * choices, int size, unsigned long lo
 void reverse(int *first, int *last);
 void swap(int *x, int *y);
 void permute(int* a, int l, int r, int* final, int size);
+void calculate_shortest_path(int *choices, int *weights, int size, unsigned long long fact, int *path);
 
 
 int main(int argc, char const *argv[])
 {
     printf("Starting the function\n");
     
-    int size = 4, *cost;
+    int size = 14, *cost;
     unsigned long long fact = factorial(size-1);
     printf("Factorial (%d), %llu\n", (size-1), fact);
     int *city_ids = (int *)malloc(size * sizeof(int));
     int *graphWeights = (int *)malloc(size * sizeof(int) * size);
     int *choices = (int *)malloc(size * sizeof(int) * fact);
+    int *path = (int *)malloc(size * sizeof(int));
 
 	initialize(city_ids, graphWeights, size);
     //find_permutations(city_ids, choices, size, fact);
     permute(city_ids, 1, size-1, choices, size);
-    for(int i=0; i<size*fact; i++){
-        printf("choices %d \t", choices[i]);
+    calculate_shortest_path(choices, graphWeights, size, fact, path);
+    printf("The shortest path is: \n");
+    for(int i=0; i< size; i++){
+        printf("%d, \t", path[i]);
     }
-
 }
 void initialize(int * city_ids, int * graphWeights, int size) {
 	for (int i = 0; i < size; i++) {
@@ -59,12 +62,6 @@ void initialize(int * city_ids, int * graphWeights, int size) {
 	for (int i = size - 1; i >= 0; i--) {
 		graphWeights[((i + 1) % size) * size + i] = 1;
 	}
-  for(int i=0; i<size; i++){
-      for(int j=0; j<size; j++){
-          printf("%d,\t", graphWeights[i * size + j]);
-      }
-      printf("\n");
-  }
 }
 unsigned long long factorial(int n) {
 	int c;
@@ -88,9 +85,7 @@ void permute(int* a, int l, int r, int* final, int size)
 {
     int i;
     if (l == r){
-        printf("size %d\n", size);
         for(i=0; i<size; i++){
-            printf("Inside %d \t", a[i]);
             final[i + permute_count * (l+1)] = a[i];
         }
         printf("\n");
@@ -106,22 +101,22 @@ void permute(int* a, int l, int r, int* final, int size)
     }
 }
 void reverse(int *first, int *last) { while ((first != last) && (first != --last)) swap(first++, last); }
-// void find_permutations(int * city_ids, int * choices, int size, unsigned long long fact) {
-//     permute(city_ids, 0, size, choices, size);
-//     for(int i=0; i<3*6; i++){
-//         printf("%d \t", choices[i]);
-//     }
 
-	// int index = 1;
-	// unsigned long long count = 0;
-	// for (count = 0; count < fact; count++) {
-	// 	for (int i = 0; i < size; i++) {
-	// 		choices[i + count * size] = city_ids[i];
-	// 	}
-	// 	reverse(city_ids + index, city_ids + size);
-	// }
-    // for(int i=0; i<size * fact; i++){
-    //     printf("choices %d", choices[i]);
-    // }
-
-//}
+void calculate_shortest_path(int *choices, int *weights, int size, unsigned long long fact, int *path){
+    unsigned long long cost;
+    unsigned long long min = INT64_MAX;
+    int min_index;
+    for(int i=0; i<fact; i++){
+        cost = 0;
+        for(int j=0; j<size; j++){
+            cost += weights[j + i*size];
+        }
+        if(cost < min){
+            min = cost;
+            min_index = i;
+        }
+    }
+    for(int i=0; i< size; i++){
+        path[i] = choices[i + min_index * size];
+    }
+}
