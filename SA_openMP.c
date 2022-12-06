@@ -9,10 +9,12 @@
 #define T_end (1e-8)        //end temp
 #define q 0.98              //coef
 #define L 1024              //max it
-#define N 34                //number of cities
+#define N 12                //number of cities
 int city_result[N];         //solution
-double city[N][2] = {{9932, 4439}, {10109, 4351}, {11552, 3472}, {10302, 3290}, {8776, 3333}, {7040, 4867}, {9252, 4278}, {9395, 4539}, {11101, 2540}, {9825, 5087}, {10047, 4879}, {10227, 4648}, {100027, 4229}, {9878, 4211}, {9087, 4065}, {10438, 4075}, {10382, 3865}, {11196, 3563}, {11075, 3543}, {11544, 3365}, {11915, 2900}, {11305, 3189}, {11073, 3137}, {10950, 3394}, {11576, 2575}, {12239, 2785}, {11529, 2226}, {9328, 4006}, {10012, 3811}, {9952, 3410}, {10612, 2954}, {10349, 2784}, {11747, 2469}, {11673, 2461}};
-double distance(double *city1, double *city2); //distance between two city
+double city[N][2] = {{48.431245619848255, -123.36537967024275},{49.3021919632101, -123.12226115279474},{53.62208783069036, -113.40039303223175},{52.19013778041407, -106.55403987156726},{50.46323151354986, -104.61637921649017},{66.24852413463175, -128.6448217733023},{49.88727582165454, -97.22962773518263}
+,{43.680419790975435, -79.39774675313382},{45.30760994851931, -75.76618887317751},{51.32530434372933, -73.22678830471655},{64.34788639923939, -95.9939920711135},{69.368278920504, -124.12344886103753}};
+//double city[N][2] = {{9932, 4439}, {10109, 4351}, {11552, 3472}, {10302, 3290}, {8776, 3333}, {7040, 4867}, {9252, 4278}, {9395, 4539}, {11101, 2540}, {9825, 5087}, {10047, 4879}, {10227, 4648}, {100027, 4229}, {9878, 4211}, {9087, 4065}, {10438, 4075}, {10382, 3865}, {11196, 3563}, {11075, 3543}, {11544, 3365}, {11915, 2900}, {11305, 3189}, {11073, 3137}, {10950, 3394}, {11576, 2575}, {12239, 2785}, {11529, 2226}, {9328, 4006}, {10012, 3811}, {9952, 3410}, {10612, 2954}, {10349, 2784}, {11747, 2469}, {11673, 2461}};
+double haversine(double *city1, double *city2); //distance between two city
 double path(int city_result[N]);               //calculate distance of the solution
 void init();                                   //init solution
 void creat();                                  //creat new solution
@@ -70,8 +72,8 @@ int main()
     }
     end = clock();
     time_sum = (double)(end - start ) / (CLOCKS_PER_SEC);
-    printf("total annealing：%d次\n", count);
-    printf("shortest distance：%0.2f\n", path(city_result));
+    printf("total annealing：%d times\n", count);
+    printf("shortest distance：%0.2f km.\n", path(city_result));
     for (i = 0; i < N; i++)
     {
         printf("%d->", city_result[i]);
@@ -82,15 +84,22 @@ int main()
     return 0;
 }
 
-double distance(double *city1, double *city2)
+double haversine(double *city1, double *city2)
 {
-    double x1, x2, y1, y2, dis;
-    x1 = *city1;
-    x2 = *city2;
-    y1 = *(city1 + 1);
-    y2 = *(city2 + 1);
-    dis = sqrt(pow((x2 - x1), 2) + pow((y2 - y1), 2));
-    return dis;
+    double lat1, lat2, lon1, lon2;
+    lat1 = *city1;
+    lat2 = *city2;
+    lon1 = *(city1 + 1);
+    lon2 = *(city2 + 1);
+    double dLat = (lat2 - lat1) * M_PI / 180.0;
+    double dLon = (lon2 - lon1) * M_PI / 180.0;
+    // convert to radians
+	lat1 = (lat1) * M_PI / 180.0;
+	lat2 = (lat2) * M_PI / 180.0;
+	double a = pow(sin(dLat / 2), 2) + pow(sin(dLon / 2), 2) * cos(lat1) * cos(lat2);
+	double rad = 6371;
+	double c = 2 * asin(sqrt(a));
+	return rad * c;
 }
 
 double path(int city_result[N])
@@ -101,9 +110,9 @@ double path(int city_result[N])
     {
         city1_num = city_result[i];
         city2_num = city_result[i + 1];
-        sum += distance(city[city1_num], city[city2_num]);
+        sum += haversine(city[city1_num], city[city2_num]);
     }
-    sum += distance(city[0], city[N - 1]);
+    sum += haversine(city[0], city[N - 1]);
     return sum;
 }
 
