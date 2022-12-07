@@ -18,7 +18,7 @@ int main(int argc, char const *argv[])
 {
     printf("Starting the function\n");
     clock_t start, end;
-    int size = 12, *cost;
+    int size = 11, *cost;
     unsigned long long fact = factorial(size-1);
     printf("Factorial (%d), %llu\n", (size-1), fact);
     int *city_ids = (int *)malloc(size * sizeof(int));
