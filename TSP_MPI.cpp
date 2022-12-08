@@ -144,10 +144,10 @@ int main(int argc, char *argv[])
 	MPI_Barrier( MPI_COMM_WORLD );
 
 	// printing the path weight matrix
-	// if(mype == MASTER){
-	// 	print_matrix(matrix, N);
-	// 	cout<<endl;
-	// }
+	if(mype == MASTER){
+		print_matrix(matrix, N);
+		cout<<endl;
+	}
 
 	MPI_Barrier( MPI_COMM_WORLD );
 
@@ -240,29 +240,27 @@ int main(int argc, char *argv[])
 	end = MPI_Wtime();		// end time
 	
 	// printing the minimum cost path
-	// if(mype == MASTER){
-	// 	for (int i = 0; i < N+1; i++) {
-	// 		cout << ans[i] << ' ';
-	// 	}
-	// 	cout<<endl<<endl;
-	// }
+	if(mype == MASTER){
+		for (int i = 0; i < N+1; i++) {
+			cout << ans[i] << ' ';
+		}
+		cout<<endl<<endl;
+	}
 
 	// printing the minimum path cost
-	// if(mype == MASTER){
-	// 	int cost = 0;
-	// 	for(int i=1;i<N+1;i++)
-	// 	{
-	// 		cost += matrix[ans[i]][ans[i-1]];
-	// 	}
-	// 	cout<<cost<<endl<<endl;
-	// }
+	if(mype == MASTER){
+		int cost = 0;
+		for(int i=1;i<N+1;i++)
+		{
+			cost += matrix[ans[i]][ans[i-1]];
+		}
+		cout<<cost<<endl<<endl;
+	}
 
 	// printing the run-time
 	if(mype == MASTER){
 		cout << fixed << setprecision(5) << (end-start) << endl;
 	}
-
-
 
 	// deleting allocated memory
 	delete ans;
