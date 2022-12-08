@@ -1,4 +1,4 @@
-#define MASTER						0						/* The master PE					*/
+#define MASTER	0
 
 #include <mpi.h>
 #include <vector>
@@ -104,8 +104,8 @@ int main(int argc, char *argv[])
 {
 	int N = stoi(argv[1]);
 
-	int			npes;					/* Number of PEs */
-	int			mype;					/* My PE number  */
+	int			num_proc;				/* Number of processors */
+	int			my_rank;				/* current processor rank  */
 	int			stat;					/* Error Status  */
 	MPI_Status	status;
 
@@ -113,8 +113,8 @@ int main(int argc, char *argv[])
 
 	MPI_Init(&argc, &argv);
 
-	MPI_Comm_size(MPI_COMM_WORLD, &npes );
-	MPI_Comm_rank(MPI_COMM_WORLD, &mype );
+	MPI_Comm_size(MPI_COMM_WORLD, &num_proc );
+	MPI_Comm_rank(MPI_COMM_WORLD, &my_rank );
 
 	precompute_factorial();
 	
@@ -124,12 +124,12 @@ int main(int argc, char *argv[])
 	}
 	
 	// assigning edge weights in MASTER
-	if(mype == MASTER){
+	if(my_rank == MASTER){
 		assign_edge_weights(matrix, N);
 	}
 	// sending the edge weights to other PEs
-	if(mype == MASTER){
-		for(int pe = 1 ; pe < npes ; pe++) {
+	if(my_rank == MASTER){
+		for(int proc = 1 ; proc < num_proc ; pe++) {
 			for (int i = 0 ; i < N ; i++) {
 				MPI_Send(&matrix[i][0], N, MPI_INT, pe, pe, MPI_COMM_WORLD);
 			}
@@ -137,14 +137,14 @@ int main(int argc, char *argv[])
 	}
 	else{
 		for (int i = 0 ; i < N ; i++) {
-			MPI_Recv( &matrix[i][0], N, MPI_INT, MASTER, mype, MPI_COMM_WORLD, &status);
+			MPI_Recv( &matrix[i][0], N, MPI_INT, MASTER, my_rank, MPI_COMM_WORLD, &status);
 		}
 	}
 
 	MPI_Barrier( MPI_COMM_WORLD );
 
 	// printing the path weight matrix
-	if(mype == MASTER){
+	if(my_rank == MASTER){
 		print_matrix(matrix, N);
 		cout<<endl;
 	}
@@ -160,8 +160,8 @@ int main(int argc, char *argv[])
 
 	// divide among PEs
 
-	long long nppe = fact[N-1]/npes;
-	long long rem = fact[N-1]%npes;
+	long long nperm_proc = fact[N-1]/num_proc;
+	long long rem = fact[N-1]%num_proc;
 
 	long long start_perm_ind, end_perm_ind;
 
@@ -170,17 +170,17 @@ int main(int argc, char *argv[])
 	for(int i=1;i<N;i++) nodes.push_back(i);
 
 	if(rem == 0){
-		start_perm_ind = (mype*nppe) + 1;
-		end_perm_ind = (mype + 1)*nppe;
+		start_perm_ind = (my_rank*nperm_proc) + 1;
+		end_perm_ind = (my_rank + 1)*nperm_proc;
 	}
 	else{
-		if(mype < rem){
-			start_perm_ind = (mype*(nppe + 1)) + 1;
-			end_perm_ind = (mype + 1)*(nppe + 1);
+		if(my_rank < rem){
+			start_perm_ind = (my_rank*(nperm_proc + 1)) + 1;
+			end_perm_ind = (my_rank + 1)*(nperm_proc + 1);
 		}
 		else{
-			start_perm_ind = rem*(nppe + 1) + (mype - rem)*nppe + 1;
-			end_perm_ind = rem*(nppe + 1) + (mype + 1 - rem)*nppe;
+			start_perm_ind = rem*(nperm_proc + 1) + (my_rank - rem)*nperm_proc + 1;
+			end_perm_ind = rem*(nperm_proc + 1) + (my_rank + 1 - rem)*nperm_proc;
 		}
 	}
 
@@ -213,10 +213,10 @@ int main(int argc, char *argv[])
 	}
 
 	// comparing the optimal values from other PEs in the MASTER
-	if(mype == MASTER){
+	if(my_rank == MASTER){
 
 		// receiving ans from all other PEs
-		for(int pe = 1 ; pe < npes ; pe++) {
+		for(int proc = 1 ; proc < num_proc ; pe++) {
 
 			int tmp_optimal_value;
 			int* tmp_ans = new int[N+1];
@@ -231,8 +231,8 @@ int main(int argc, char *argv[])
 	}
 	else{
 		// send ans to MASTER
-		MPI_Send(&ans[0], (N+1), MPI_INT, MASTER, mype, MPI_COMM_WORLD);
-		MPI_Send(&optimal_value, 1, MPI_INT, MASTER, mype, MPI_COMM_WORLD);
+		MPI_Send(&ans[0], (N+1), MPI_INT, MASTER, my_rank, MPI_COMM_WORLD);
+		MPI_Send(&optimal_value, 1, MPI_INT, MASTER, my_rank, MPI_COMM_WORLD);
 	}
 
 	MPI_Barrier( MPI_COMM_WORLD );
@@ -240,7 +240,7 @@ int main(int argc, char *argv[])
 	end = MPI_Wtime();		// end time
 	
 	// printing the minimum cost path
-	if(mype == MASTER){
+	if(my_rank == MASTER){
 		for (int i = 0; i < N+1; i++) {
 			cout << ans[i] << ' ';
 		}
@@ -248,7 +248,7 @@ int main(int argc, char *argv[])
 	}
 
 	// printing the minimum path cost
-	if(mype == MASTER){
+	if(my_rank == MASTER){
 		int cost = 0;
 		for(int i=1;i<N+1;i++)
 		{
@@ -258,7 +258,7 @@ int main(int argc, char *argv[])
 	}
 
 	// printing the run-time
-	if(mype == MASTER){
+	if(my_rank == MASTER){
 		cout << fixed << setprecision(5) << (end-start) << endl;
 	}
 
