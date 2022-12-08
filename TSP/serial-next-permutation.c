@@ -101,21 +101,7 @@ void permute(int* a, int l, int r, int* final, int size)
         permute_count++;
     }
     
-    // int i;
-    // if (l == r){
-    //     for(i=0; i<size; i++){
-    //         final[i + permute_count * (l+1)] = a[i];
-    //     }
-    //     permute_count++;
-    // }
 
-    // else {
-    //     for (i = l; i <= r; i++) {
-    //         swap((a + l), (a + i));
-    //         permute(a, l + 1, r, final, size);
-    //         swap((a + l), (a + i)); 
-    //     }
-    // }
 }
 void reverse(int *first, int *last) { while ((first != last) && (first != --last)) swap(first++, last); }
 
